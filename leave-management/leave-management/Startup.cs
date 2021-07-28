@@ -39,14 +39,17 @@ namespace leave_management
             services.AddScoped<ILeaveHistoryRepository, LeaveHistoryRepository>();
             services.AddScoped<ILeaveAllocationRepository, LeaveAllocationRepository>();
             services.AddAutoMapper(typeof(MapperVMToDB));
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<IdentityUser>()
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+           
             services.AddControllersWithViews();
             services.AddRazorPages().AddRazorRuntimeCompilation();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, 
+            UserManager<IdentityUser> userMan, RoleManager<IdentityRole> roleMan)
         {
             if (env.IsDevelopment())
             {
@@ -67,6 +70,7 @@ namespace leave_management
             app.UseAuthentication();
             app.UseAuthorization();
 
+            SeedData.Seed(userMan, roleMan);
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

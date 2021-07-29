@@ -8,16 +8,18 @@ namespace leave_management.Data
 {
     public static class SeedData
     {
-        public static void Seed(UserManager<IdentityUser> userMan, RoleManager<IdentityRole> roleMan)
+        public static void Seed(UserManager<Employee> userMan, RoleManager<IdentityRole> roleMan)
         {
             SeedRoles(roleMan);
             SeedUsers(userMan);
         }
-        private static void SeedUsers(UserManager<IdentityUser> userMan)
+        private static void SeedUsers(UserManager<Employee> userMan)
         {
-            if(userMan.FindByNameAsync("admin").Result ==null)
+
+           
+            if(userMan.FindByNameAsync("admin@localhost.com").Result ==null)
             {
-                var user = new IdentityUser
+                var user = new Employee
                 {
                     UserName = "admin@localhost.com",
                     Email = "admin@localhost.com"

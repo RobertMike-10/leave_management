@@ -14,14 +14,15 @@ namespace leave_management.Areas.Identity
     {
         public void Configure(IWebHostBuilder builder)
         {
-            builder.ConfigureServices((context, services) => {
-                services.AddDbContext<leave_managementContext>(options =>
-                    options.UseSqlServer(
-                        context.Configuration.GetConnectionString("leave_managementContextConnection")));
+            //builder.ConfigureServices((context, services) => {
+                //services.AddDbContext<leave_managementContext>(options =>
+                    //options.UseSqlServer(
+                       // context.Configuration.GetConnectionString("leave_managementContextConnection")));
 
-                //services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                  //  .AddEntityFrameworkStores<leave_managementContext>();
-            });
+
+                //services.AddDefaultIdentity<Employee>(options => options.SignIn.RequireConfirmedAccount = true)
+                    //.AddEntityFrameworkStores<leave_managementContext>();
+           // });
         }
     }
 }

@@ -8,7 +8,7 @@
 
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-8">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
@@ -19,8 +19,13 @@
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="DefaultDays" class="control-label"></label>
+                <input asp-for="DefaultDays" class="form-control" />
+                <span asp-validation-for="DefaultDays" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <input type="submit" value="Save Changes" class="btn btn-success " />
-                <a asp-action="Index" class="btn btn-secondary" >Back to List</a>
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
             </div>
         </form>
     </div>

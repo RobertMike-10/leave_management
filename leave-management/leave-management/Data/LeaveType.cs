@@ -13,6 +13,8 @@ namespace leave_management.Data
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }
+        [Required]
+        public int DefaultDays { get; set; }
         public DateTime DateCreated { get; set; }
     }
 }

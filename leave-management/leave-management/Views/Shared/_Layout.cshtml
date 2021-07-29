@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
+@using leave_management.Data;
+@inject SignInManager<Employee> SignInManager
+@inject UserManager<Employee> UserManager
 
 <!DOCTYPE html>
 <html lang="en">
@@ -10,7 +11,7 @@
     <title>@ViewData["Title"] - Core Leave Management</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
-    <link rel="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap4.min.css" />
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" />
 
@@ -37,15 +38,15 @@
                             </li>
                             @if (User.IsInRole("Administrator"))
                             {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropDownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Manage</a>
-                                <div class="dropdown-menu" aria-labelledby="navbarDropDownMenuLink">
-                                    <a class="dropdown-item text-dark" asp-controller="LeaveTypes" asp-action="Index">Leave Types</a>
-                                    <a class="dropdown-item text-dark" href="#">Leave Allocations</a>
-                                    <a class="dropdown-item text-dark" href="#">Leave Applications</a>
-                                    <a class="dropdown-item text-dark" href="#">Employees</a>
-                                </div>
-                            </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropDownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Manage</a>
+                                    <div class="dropdown-menu" aria-labelledby="navbarDropDownMenuLink">
+                                        <a class="dropdown-item text-dark" asp-controller="LeaveTypes" asp-action="Index">Leave Types</a>
+                                        <a class="dropdown-item text-dark" asp-controller="LeaveAllocation" asp-action="Index">Leave Allocations</a>
+                                        <a class="dropdown-item text-dark" href="#">Leave Applications</a>
+                                        <a class="dropdown-item text-dark" asp-controller="LeaveAllocation" asp-action="ListEmployees">Employees</a>
+                                    </div>
+                                </li>
                             }
                         }
                     </ul>

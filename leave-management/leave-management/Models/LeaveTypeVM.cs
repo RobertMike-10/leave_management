@@ -13,6 +13,11 @@ namespace leave_management.Models
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }
+
+        [Required]
+        [Display(Name = "Default Number of Days")]
+        [Range(1,365, ErrorMessage ="Please enter a valid range from 1 to 365")]
+        public int DefaultDays { get; set; }
         [Display(Name ="Date Created")]
         public DateTime? DateCreated { get; set; }
     }

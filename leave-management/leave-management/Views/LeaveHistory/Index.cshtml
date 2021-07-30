@@ -1,0 +1,150 @@
+﻿@model leave_management.Models.AdminLeaveHistoryVM
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Leave Requests</h1>
+
+<p>
+    <a asp-action="Create" class="btn-success" style="padding: 5px; border-radius: 5%"><i class="fa fa-plus" aria-hidden="true"></i> Create New</a>
+</p>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body text-center">
+                <h5 class="card-title text-primary">@Model.TotalRequest</h5>
+                <p class="card-text">@Html.DisplayNameFor(model => model.TotalRequest)</p>               
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body text-center">
+                <h5 class="card-title text-success">@Model.ApprovedRequest</h5>
+                <p class="card-text">@Html.DisplayNameFor(model => model.ApprovedRequest)</p>              
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body text-center">
+                <h5 class="card-title text-warning">@Model.PendingRequest</h5>
+                <p class="card-text">@Html.DisplayNameFor(model => model.PendingRequest)</p>               
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body text-center">
+                <h5 class="card-title text-danger">@Model.RejectedRequest</h5>
+                <p class="card-text">@Html.DisplayNameFor(model => model.RejectedRequest)</p>               
+            </div>
+        </div>
+    </div>
+
+</div>
+<br />
+<hr />
+<h1>Leave Requests Log</h1>
+<hr />
+<table id="tblRequests" class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>
+                Employee Name
+            </th>
+            <th>
+                Start Date
+            </th>
+            <th>
+                End Date
+            </th>
+            <th>
+                Leave Type
+            </th>
+            <th>
+                Date Requested
+            </th>
+            <th>
+                Date Actioned
+            </th>
+            <td>
+                Days Requested
+            </td>
+            <td>
+                Employee Coments
+            </td>
+            <td>
+                Approved Status
+            </td>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.LeaveRequests)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.RequestingEmployee.Firstname) @Html.DisplayFor(modelItem => item.RequestingEmployee.Lastname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EndDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LeaveType.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateRequested)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateActioned)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DaysRequested)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RequestComments)
+            </td>
+            <td>
+                @if (item.Approved == true)
+                {
+                    <span class="badge badge-success">Approved</span>
+                }
+                else if (item.Approved == false)
+                {
+                    <span class="badge badge-danger">Rejected</span>
+                }
+                else if (item.Approved == null)
+                {
+                    if (item.Cancelled == true)
+                    {
+                        <span class="badge badge-secondary">Cancelled</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-warning">Pending</span>
+                    }
+                }
+            </td>
+            <td>
+                <a class="btn-outline-primary" style="padding: 5px; margin:5px; border-radius: 5%; " asp-action="Details" asp-route-id="@item.Id"><i class="fas fa-file-signature"></i>Review</a>
+
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+
+@section Scripts{
+    <script>
+    $(document).ready( function () {
+        $('#tblRequests').DataTable();
+    });
+    </script>
+}

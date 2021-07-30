@@ -13,28 +13,31 @@
             <th>
                 Leave Types
             </th>
-            
+
             <th>Action</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.LeaveTypes) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            
-            <td>
-                <a class="btn-outline-primary" style="padding: 5px; margin:5px; border-radius: 5%; " asp-action="SetLeave" asp-route-id="@item.Id"><i class="fa fa-pencil-alt" aria-hidden="true"></i> Allocation to Employees </a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model.LeaveTypes)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+
+                <td>
+                    <a class="btn-outline-primary" style="padding: 5px; margin:5px; border-radius: 5%; " asp-action="SetLeave" asp-route-id="@item.Id"><i class="fa fa-pencil-alt" aria-hidden="true"></i> Allocation to Employees </a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
 @if (Model.NumberUpdated > 0)
 {
-<div class="card" style="width: 18rem;">
-    <span class="badge badge-light" style="border:none !important;">Updated  @Model.NumberUpdated  registers</span>    
-</div>
+    <div class="alert alert-success" role="alert">
+        <h5 class="alert-heading">Updated @Model.NumberUpdated  registers </h5>
+        
+    </div>
+   
 }
 

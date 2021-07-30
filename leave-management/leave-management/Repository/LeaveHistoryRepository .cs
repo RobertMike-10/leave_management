@@ -1,5 +1,7 @@
 ﻿using leave_management.Contracts;
 using leave_management.Data;
+using leave_management.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,12 +30,20 @@ namespace leave_management.Repository
 
         public ICollection<LeaveHistory> FindAll()
         {
-            return _db.LeaveHistories.ToList();
+            return _db.LeaveHistories.
+                Include(x => x.RequestingEmployee).
+                Include(x => x.ApprovedBy).
+                Include(x => x.LeaveType).
+                ToList();
         }
 
         public LeaveHistory FindById(int id)
         {
-            return _db.LeaveHistories.Find(id);
+            return _db.LeaveHistories.
+                Include(x => x.RequestingEmployee).
+                Include(x => x.ApprovedBy).
+                Include(x => x.LeaveType).
+                FirstOrDefault(x => x.Id== id);
         }
 
         public bool Save()
@@ -53,5 +63,9 @@ namespace leave_management.Repository
             return exists;
         }
 
+        public ICollection<LeaveHistory> GetLeaveRequestsByEmployee(string employeeId)
+        {
+            return FindAll().Where(x => x.RequestingEmployeeId == employeeId).ToList();
+        }
     }
 }

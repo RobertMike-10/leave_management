@@ -73,5 +73,12 @@ namespace leave_management.Repository
             return FindAll().Where(x =>
             x.EmployeeId == employeeId && x.Period == Period).ToList();
         }
+
+        public LeaveAllocation GetLeaveAllocationByEmployeeAndType(string employeeId, int leaveTypeId)
+        {
+            var Period = DateTime.Now.Year;
+            return FindAll().FirstOrDefault(x =>
+            x.EmployeeId == employeeId && x.Period == Period && x.LeaveTypeId == leaveTypeId);
+        }
     }
 }

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using Microsoft.EntityFrameworkCore;
 namespace leave_management.Repository
 {
     public class LeaveTypeRepository : ILeaveTypeRepository
@@ -14,48 +14,48 @@ namespace leave_management.Repository
         {
             _db = db;
         }
-        public bool Create(LeaveType entity)
+        public async Task<bool> Create(LeaveType entity)
         {
-            _db.LeaveTypes.Add(entity);
-            return Save();
+            await _db.LeaveTypes.AddAsync(entity);
+            return await Save();
         }
-        public bool Delete(LeaveType entity)
+        public async Task<bool> Delete(LeaveType entity)
         {
-            _db.LeaveTypes.Remove(entity);
-            return Save();
-        }
-
-        public ICollection<LeaveType> FindAll()
-        {
-            return _db.LeaveTypes.ToList();
+            await Task.Run (() =>_db.LeaveTypes.Remove(entity));
+            return await Save();
         }
 
-        public LeaveType FindById(int id)
+        public async Task<ICollection<LeaveType>> FindAll()
         {
-            return _db.LeaveTypes.Find(id);
+            return await _db.LeaveTypes.ToListAsync();
+        }
+
+        public async Task<LeaveType> FindById(int id)
+        {
+            return await _db.LeaveTypes.FindAsync(id);
             //_db.LeaveTypes.FirstOrDefault(x => x.Id==id);            
         }
 
-        public ICollection<LeaveType> GetEmployeesByLeaveType(int id)
+        public async Task<ICollection<LeaveType>> GetEmployeesByLeaveType(int id)
         {
             throw new NotImplementedException();
         }
 
-        public bool IsExists(int id)
+        public async Task<bool> IsExists(int id)
         {
-            var exists = _db.LeaveTypes.Any(x => x.Id == id);
+            var exists = await  _db.LeaveTypes.AnyAsync(x => x.Id == id);
             return exists;
         }
 
-        public bool Save()
+        public async Task<bool> Save()
         {
-            return _db.SaveChanges() >0;
+            return await _db.SaveChangesAsync() >0;
         }
 
-        public bool Update(LeaveType entity)
+        public async Task<bool> Update(LeaveType entity)
         {
-            _db.LeaveTypes.Update(entity);
-            return Save();
+            await Task.Run(() => _db.LeaveTypes.Update(entity));
+            return await Save();
         }
     }
 }

@@ -9,42 +9,86 @@
 <p>
     <a asp-action="Create" class="btn-success" style="padding: 5px; border-radius: 5%"><i class="fa fa-plus" aria-hidden="true"></i> Create New</a>
 </p>
-
+<br />
 <div class="row">
-    <div class="col-md-3">
-        <div class="card" style="width: 18rem;">
-            <div class="card-body text-center">
-                <h5 class="card-title text-primary">@Model.TotalRequest</h5>
-                <p class="card-text">@Html.DisplayNameFor(model => model.TotalRequest)</p>               
+    <div class="col-md-3 col-sm-6 col-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-info"><i class="far fa-envelope"></i></span>
+
+            <div class="info-box-content">
+                <span class="info-box-text">@Model.TotalRequest</span>
+                <span class="info-box-number">@Html.DisplayNameFor(model => model.TotalRequest)</span>
             </div>
+            <!-- /.info-box-content -->
         </div>
+        <!-- /.info-box -->
     </div>
-    <div class="col-md-3">
-        <div class="card" style="width: 18rem;">
+    @*<div class="card" style="width: 18rem;">
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-primary">@Model.TotalRequest</h5>
+                        <p class="card-text">@Html.DisplayNameFor(model => model.TotalRequest)</p>
+                    </div>
+                </div>
+        </div> *@
+
+<div class="col-md-3 col-sm-6 col-12">
+    <div class="info-box">
+        <span class="info-box-icon bg-warning"><i class="fas fa-exclamation" style="color:white;"></i></span>
+
+        <div class="info-box-content">
+            <span class="info-box-text">@Model.PendingRequest</span>
+            <span class="info-box-number">@Html.DisplayNameFor(model => model.PendingRequest)</span>
+        </div>
+        <!-- /.info-box-content -->
+    </div>
+  
+    <!-- /.info-box -->
+    @*<div class="card" style="width: 18rem;">
             <div class="card-body text-center">
                 <h5 class="card-title text-success">@Model.ApprovedRequest</h5>
-                <p class="card-text">@Html.DisplayNameFor(model => model.ApprovedRequest)</p>              
+                <p class="card-text">@Html.DisplayNameFor(model => model.ApprovedRequest)</p>
             </div>
+        </div>*@
+</div>
+
+<div class="col-md-3 col-sm-6 col-12">
+    <div class="info-box">
+        <span class="info-box-icon bg-success"><i class="fas fa-check"></i></span>
+
+        <div class="info-box-content">
+            <span class="info-box-text">@Model.ApprovedRequest</span>
+            <span class="info-box-number">@Html.DisplayNameFor(model => model.ApprovedRequest)</span>
         </div>
+        <!-- /.info-box-content -->
     </div>
-    <div class="col-md-3">
-        <div class="card" style="width: 18rem;">
+    <!-- /.info-box -->
+    @*<div class="card" style="width: 18rem;">
             <div class="card-body text-center">
                 <h5 class="card-title text-warning">@Model.PendingRequest</h5>
-                <p class="card-text">@Html.DisplayNameFor(model => model.PendingRequest)</p>               
+                <p class="card-text">@Html.DisplayNameFor(model => model.PendingRequest)</p>
             </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card" style="width: 18rem;">
-            <div class="card-body text-center">
-                <h5 class="card-title text-danger">@Model.RejectedRequest</h5>
-                <p class="card-text">@Html.DisplayNameFor(model => model.RejectedRequest)</p>               
+        </div> *@
+</div>
+    <div class="col-md-3 col-sm-6 col-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-danger"><i class="fas fa-lock"></i></span>
+
+            <div class="info-box-content">
+                <span class="info-box-text">@Model.RejectedRequest</span>
+                <span class="info-box-number">@Html.DisplayNameFor(model => model.RejectedRequest)</span>
             </div>
+            <!-- /.info-box-content -->
         </div>
+        @*<div class="card" style="width: 18rem;">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-danger">@Model.RejectedRequest</h5>
+                    <p class="card-text">@Html.DisplayNameFor(model => model.RejectedRequest)</p>
+                </div>
+            </div>*@
     </div>
 
 </div>
+<!-- Fin del row-->
 <br />
 <hr />
 <h1>Leave Requests Log</h1>
@@ -85,57 +129,57 @@
     <tbody>
         @foreach (var item in Model.LeaveRequests)
         {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.RequestingEmployee.Firstname) @Html.DisplayFor(modelItem => item.RequestingEmployee.Lastname)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EndDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LeaveType.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DateRequested)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DateActioned)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DaysRequested)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RequestComments)
-            </td>
-            <td>
-                @if (item.Approved == true)
-                {
-                    <span class="badge badge-success">Approved</span>
-                }
-                else if (item.Approved == false)
-                {
-                    <span class="badge badge-danger">Rejected</span>
-                }
-                else if (item.Approved == null)
-                {
-                    if (item.Cancelled == true)
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RequestingEmployee.Firstname) @Html.DisplayFor(modelItem => item.RequestingEmployee.Lastname)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LeaveType.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DateRequested)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DateActioned)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DaysRequested)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RequestComments)
+                </td>
+                <td>
+                    @if (item.Approved == true)
                     {
-                        <span class="badge badge-secondary">Cancelled</span>
+                        <span class="badge badge-success">Approved</span>
                     }
-                    else
+                    else if (item.Approved == false)
                     {
-                        <span class="badge badge-warning">Pending</span>
+                        <span class="badge badge-danger">Rejected</span>
                     }
-                }
-            </td>
-            <td>
-                <a class="btn-outline-primary" style="padding: 5px; margin:5px; border-radius: 5%; " asp-action="Details" asp-route-id="@item.Id"><i class="fas fa-file-signature"></i>Review</a>
+                    else if (item.Approved == null)
+                    {
+                        if (item.Cancelled == true)
+                        {
+                            <span class="badge badge-secondary">Cancelled</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-warning">Pending</span>
+                        }
+                    }
+                </td>
+                <td>
+                    <a class="btn-outline-primary" style="padding: 5px; margin:5px; border-radius: 5%; " asp-action="Details" asp-route-id="@item.Id"><i class="fas fa-file-signature"></i>Review</a>
 
-            </td>
-        </tr>
+                </td>
+            </tr>
         }
     </tbody>
 </table>
@@ -143,8 +187,8 @@
 
 @section Scripts{
     <script>
-    $(document).ready( function () {
-        $('#tblRequests').DataTable();
-    });
+        $(document).ready(function () {
+            $('#tblRequests').DataTable();
+        });
     </script>
 }

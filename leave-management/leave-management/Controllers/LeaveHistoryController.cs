@@ -44,7 +44,7 @@ namespace leave_management.Controllers
                 TotalRequest = requestsModel.Count,
                 ApprovedRequest = requestsModel.Where(x => x.Approved==true).Count(),
                 RejectedRequest = requestsModel.Count(x => x.Approved == false),
-                PendingRequest = requestsModel.Count(x => x.Approved == null),
+                PendingRequest = requestsModel.Count(x => x.Approved == null && x.Cancelled !=true),
                 LeaveRequests = requestsModel
             };
             model.LeaveRequests = model.LeaveRequests.Select(x => { x.DaysRequested = (int)(x.EndDate-x.StartDate).TotalDays; return x; }).ToList();

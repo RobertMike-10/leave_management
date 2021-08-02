@@ -46,13 +46,13 @@ namespace leave_management.Models
 
     public class AdminLeaveHistoryVM
     {
-        [Display(Name = "Total Number of Request")]
+        [Display(Name = "Total Request")]
         public int TotalRequest { get; set; }
-        [Display(Name = "Approved Request")]
+        [Display(Name = "Approved")]
         public int ApprovedRequest { get; set; }
-        [Display(Name = "Pending Request")]
+        [Display(Name = "Pending")]
         public int PendingRequest { get; set; }
-        [Display(Name = "Rejected Request")]
+        [Display(Name = "Rejected")]
         public int RejectedRequest { get; set; }
 
         public List<LeaveHistoryVM> LeaveRequests { get; set; }

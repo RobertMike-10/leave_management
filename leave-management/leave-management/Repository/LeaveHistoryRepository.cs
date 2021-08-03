@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace leave_management.Repository
 {
-    public class LeaveHistoryRepository : ILeaveHistoryRepository
+    public class LeaveHistoryRepository: ILeaveHistoryRepository
     {
         private readonly ApplicationDbContext _db;
         public LeaveHistoryRepository(ApplicationDbContext db)

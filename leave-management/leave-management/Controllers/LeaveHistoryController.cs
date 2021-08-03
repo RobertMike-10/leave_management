@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,18 +19,20 @@ namespace leave_management.Controllers
     public class LeaveHistoryController : Controller
     {
 
-        private readonly ILeaveHistoryRepository _repoHistory;
+        //private readonly ILeaveHistoryRepository _repoHistory;
+        //private readonly ILeaveTypeRepository _repoType;
+        //private readonly ILeaveAllocationRepository _repoAllocation;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly UserManager<Employee> _userManager;
-        private readonly ILeaveTypeRepository  _repoType;
-        private readonly ILeaveAllocationRepository _repoAllocation;
-        public LeaveHistoryController(ILeaveTypeRepository repoType,
-      ILeaveHistoryRepository repoHistory, ILeaveAllocationRepository repoAllocation, IMapper mapper, UserManager<Employee> userManager)
+        
+        public LeaveHistoryController(IUnitOfWork unitWork, IMapper mapper, UserManager<Employee> userManager)
         {
-            _repoHistory = repoHistory;
-            _repoType = repoType;
-            _repoAllocation = repoAllocation;
-             _mapper = mapper;
+            //_repoHistory = repoHistory;
+            //_repoType = repoType;
+            // _repoAllocation = repoAllocation;
+            _unitOfWork = unitWork;
+              _mapper = mapper;
             _userManager = userManager;
         }
 
@@ -37,7 +40,8 @@ namespace leave_management.Controllers
         // GET: LeaveHistoryController
         public async Task<ActionResult> Index()
         {
-            var requests = await _repoHistory.FindAll();
+            var requests = await _unitOfWork.LeaveHistoryRepo.FindAll(includes: q => q.Include(x => x.RequestingEmployee).
+                                                                                       Include(x => x.LeaveType)); //_repoHistory.FindAll()
             var requestsModel = _mapper.Map<List<LeaveHistoryVM>>(requests);
             var model = new AdminLeaveHistoryVM
             {
@@ -52,38 +56,51 @@ namespace leave_management.Controllers
         }
 
         // GET: LeaveHistoryController/Details/5
-        public async Task<ActionResult> Details(int id)
+        public async Task<ActionResult> Details(int id, int? error =null, string message=null)
         {
-            var leaveRequest = _mapper.Map<LeaveHistoryVM>( await _repoHistory.FindById(id));
-
+            var leaveRequest = _mapper.Map<LeaveHistoryVM>( await _unitOfWork.LeaveHistoryRepo.Find(
+                                                                         expression:x=> x.Id==id, 
+                                                                         includes: q => q.Include(x => x.RequestingEmployee).
+                                                                                      Include(x => x.LeaveType).
+                                                                                     Include(x => x.ApprovedBy))); //_repoHistory.FindById(id)
+            if (error == 1)
+            {
+                ViewBag.errorAcept = true;
+                ViewBag.MessageError = message;
+            }
+            else
+                ViewBag.errorAcept = false;
             return View(leaveRequest);
         }
 
+        //All the Employee Leaves
         public async Task<ActionResult> MyLeaves()
-        {
-           
-            var employee = await _userManager.GetUserAsync(User);            
-            var employeeAllocations = await _repoAllocation.GetLeaveAllocationsByEmployee(employee.Id);
-            var employeeRequests = await _repoHistory.GetLeaveRequestsByEmployee(employee.Id);
+        {           
+            var employee = await _userManager.GetUserAsync(User);
+            //_repoAllocation.GetLeaveAllocationsByEmployee(employee.Id)
+            var employeeAllocations = await _unitOfWork.LeaveAllocationRepo.FindAll(x => x.EmployeeId == employee.Id, 
+                                                                                   includes: q => q.Include(x => x.LeaveType));
+            //_repoHistory.GetLeaveRequestsByEmployee(employee.Id)
+            var employeeRequests = await _unitOfWork.LeaveHistoryRepo.FindAll(x => x.RequestingEmployeeId == employee.Id, 
+                                                                              includes: q => q.Include(x => x.RequestingEmployee).
+                                                                                      Include(x => x.LeaveType).
+                                                                                      Include(x => x.ApprovedBy));
 
             var employeeAllocationsModel = _mapper.Map<List<LeaveAllocationVM>>(employeeAllocations);
             var employeeRequestsModel = _mapper.Map<List<LeaveHistoryVM>>(employeeRequests);
-
+            employeeRequestsModel = employeeRequestsModel.Select(x => { x.DaysRequested = (int)(x.EndDate - x.StartDate).TotalDays; return x; }).ToList();
             var model = new EmployeeLeaveRequestsVM
             {
                 LeaveAllocations = employeeAllocationsModel,
                 LeaveRequests = employeeRequestsModel
             };
-
             return View(model);
-
         }
 
         // GET: LeaveHistoryController/Create
         public async Task <ActionResult> Create()
         {
-
-            var leaveTypes = await _repoType.FindAll();
+            var leaveTypes = await _unitOfWork.LeaveTypeRepo.FindAll(); //_repoType.FindAll()
             //select
             var leaveTypesItems = leaveTypes.Select(x => new SelectListItem {
             Text = x.Name,
@@ -102,7 +119,7 @@ namespace leave_management.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(CreateLeaveRequestVM model)
         {
-            var leaveTypes = await _repoType.FindAll();
+            var leaveTypes = await _unitOfWork.LeaveTypeRepo.FindAll(); //_repoType.FindAll()
             //select
             var leaveTypesItems = leaveTypes.Select(x => new SelectListItem
             {
@@ -138,9 +155,19 @@ namespace leave_management.Controllers
                 }
                 //user logged
                 var employee = await _userManager.GetUserAsync(User);
-                var allocation = await _repoAllocation.GetLeaveAllocationByEmployeeAndType(employee.Id,model.LeaveTypeId);
+                //var allocation = await _repoAllocation.GetLeaveAllocationByEmployeeAndType(employee.Id,model.LeaveTypeId);
+                var allocation = await _unitOfWork.LeaveAllocationRepo.Find(x => x.EmployeeId == employee.Id
+                                                                          && x.Period == DateTime.Now.Year
+                                                                          && x.LeaveTypeId == model.LeaveTypeId,
+                                                                          includes: q => q.Include(x => x.LeaveType).
+                                                                                           Include(x => x.Employee));
                 int daysRequested = (int)(dateEnd - dateStart).TotalDays;
 
+                if (allocation ==null)
+                {
+                    ModelState.AddModelError("", "You Do Not Have Days Allocated for this year");
+                    return View(model);
+                }
                 if (daysRequested > allocation.NumberOfDays)
                 {
                     ModelState.AddModelError("", "You Do Not Have Sufficient Days For This Request");
@@ -161,8 +188,8 @@ namespace leave_management.Controllers
                 };
                 var leaveRequest = _mapper.Map<LeaveHistory>(leaveHistoryVM);
                 //Save on dataBase
-                var isSuccess = await _repoHistory.Create(leaveRequest);
-
+                await _unitOfWork.LeaveHistoryRepo.Create(leaveRequest); //_repoHistory.Create(leaveRequest)
+                var isSuccess = await _unitOfWork.Save();
                 if (!isSuccess)
                 {
                     ModelState.AddModelError("", "Error when saving on DataBase");
@@ -179,25 +206,37 @@ namespace leave_management.Controllers
 
         public async Task<ActionResult> Approve(int id)
         {
-            var leaveRequest = await _repoHistory.FindById(id);
-            var model = _mapper.Map<LeaveHistoryVM>(leaveRequest);
-            
+            var leaveRequest = await _unitOfWork.LeaveHistoryRepo.Find(expression: x => x.Id == id,
+                                                                      includes: q => q.Include(x => x.RequestingEmployee).
+                                                                                      Include(x => x.LeaveType).
+                                                                                      Include(x => x.ApprovedBy)); //_repoHistory.FindById(id)
+            var model = _mapper.Map<LeaveHistoryVM>(leaveRequest);            
             try
             {
                 leaveRequest.Approved = true;
                  var user = await _userManager.GetUserAsync(User);
                 leaveRequest.ApprovedById = user.Id;
                 leaveRequest.DateActioned = DateTime.Now;
-                var allocation = await _repoAllocation.GetLeaveAllocationByEmployeeAndType(leaveRequest.RequestingEmployeeId, leaveRequest.LeaveTypeId);
+                //_repoAllocation.GetLeaveAllocationByEmployeeAndType(leaveRequest.RequestingEmployeeId, leaveRequest.LeaveTypeId)
+                var allocation = await _unitOfWork.LeaveAllocationRepo.Find(x => x.EmployeeId == leaveRequest.RequestingEmployeeId 
+                                                                           && x.Period == DateTime.Now.Year 
+                                                                           && x.LeaveTypeId == leaveRequest.LeaveTypeId, 
+                                                                           includes: q => q.Include(x => x.LeaveType).
+                                                                                           Include(x => x.Employee));
                 allocation.NumberOfDays -= (int)(leaveRequest.EndDate - leaveRequest.StartDate).TotalDays;
-
-               
-                var success = await _repoHistory.Update(leaveRequest);
-                await _repoAllocation.Update(allocation);
+                  
+                if (allocation.NumberOfDays<=0)
+                {
+                    ModelState.AddModelError("", "Error the Employee doesn't have enough days to complete this request");
+                    return RedirectToAction(nameof(Details), new { id = leaveRequest.Id, error = 1,message = "Error the Employee doesn't have enough days to complete this request" }); ;
+                    }
+                await _unitOfWork.LeaveHistoryRepo.Update(leaveRequest); //_repoHistory.Update(leaveRequest)               
+                await _unitOfWork.LeaveAllocationRepo.Update(allocation); //_repoAllocation.Update(allocation)
+                var success = await _unitOfWork.Save();
                 if (!success)
                 {
                     ModelState.AddModelError("", "Error when saving on DataBase");
-                    return View(model);
+                    return RedirectToAction(nameof(Details), new { id = leaveRequest.Id, error = 1, message = "Error when saving on DataBase" }); ;
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -209,7 +248,10 @@ namespace leave_management.Controllers
         }
             public async Task<ActionResult> Reject(int id)
         {
-            var leaveRequest = await _repoHistory.FindById(id);
+            var leaveRequest = await _unitOfWork.LeaveHistoryRepo.Find(expression: x => x.Id == id,
+                                                                      includes: q=> q.Include(x => x.RequestingEmployee).
+                                                                                      Include(x => x.LeaveType).
+                                                                                      Include(x => x.ApprovedBy));  //_repoHistory.FindById(id)
             var model = _mapper.Map<LeaveHistoryVM>(leaveRequest);
             try
             {
@@ -217,11 +259,12 @@ namespace leave_management.Controllers
                 var user = await _userManager.GetUserAsync(User);
                 leaveRequest.ApprovedById = user.Id;
                 leaveRequest.DateActioned = DateTime.Now;
-                var success = await _repoHistory.Update(leaveRequest);
+                 await _unitOfWork.LeaveHistoryRepo.Update(leaveRequest); //_repoHistory.Update(leaveRequest)
+                var success = await _unitOfWork.Save();
                 if (!success)
                 {
                     ModelState.AddModelError("", "Error when saving on DataBase");
-                    return View(model);
+                    return RedirectToAction(nameof(Details),new { id = leaveRequest.Id, error = 1, message = "Error when saving on DataBase" });
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -235,9 +278,13 @@ namespace leave_management.Controllers
 
         public async Task<ActionResult> CancelRequest(int id)
         {
-            var leaveRequest = await _repoHistory.FindById(id);
+            var leaveRequest = await _unitOfWork.LeaveHistoryRepo.Find(expression: x => x.Id == id,
+                                                                      includes: q => q.Include(x => x.RequestingEmployee).
+                                                                                      Include(x => x.LeaveType).
+                                                                                      Include(x => x.ApprovedBy));  //_repoHistory.FindById(id)
             leaveRequest.Cancelled = true;
-            await _repoHistory.Update(leaveRequest);
+            await _unitOfWork.LeaveHistoryRepo.Update(leaveRequest);
+            await _unitOfWork.Save();
             return RedirectToAction("MyLeaves");
         }
 

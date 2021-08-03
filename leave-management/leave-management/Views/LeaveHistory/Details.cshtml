@@ -59,6 +59,14 @@ else if (Model.Cancelled == true)
 
 <hr />
 
+@if (ViewBag.errorAcept)
+{
+    <div class="alert alert-secondary" role="alert">
+        <h6 class="alert-heading"> This Request can't be approved. @ViewBag.MessageError</h6>
+                
+    </div>
+}
+
 <div>
 
     <dl class="row">

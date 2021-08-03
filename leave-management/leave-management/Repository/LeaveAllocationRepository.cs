@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace leave_management.Repository
 {
-    public class LeaveAllocationRepository : ILeaveAllocationRepository
+    public class LeaveAllocationRepository: ILeaveAllocationRepository
     {
         private readonly ApplicationDbContext _db;
 

@@ -16,19 +16,22 @@ namespace leave_management.Controllers
     public class LeaveTypesController : Controller
     {
 
-        private readonly ILeaveTypeRepository _repo;
+        //private readonly ILeaveTypeRepository _repo;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public LeaveTypesController(ILeaveTypeRepository repo, IMapper mapper)
+        public LeaveTypesController(IUnitOfWork unitWork, IMapper mapper)
         {
-            _repo = repo;
+            //_repo = repo;
+            _unitOfWork = unitWork;
             _mapper = mapper;
         }
         
         // GET: LeaveTypesController
         public async Task<ActionResult> Index()
         {
-            var types = await _repo.FindAll();
+            //var types = await _repo.FindAll();
+            var types = await _unitOfWork.LeaveTypeRepo.FindAll();
             var models = _mapper.Map<List<LeaveType>, List<LeaveTypeVM>>(types.ToList());
             return View(models);
         }
@@ -36,11 +39,11 @@ namespace leave_management.Controllers
         // GET: LeaveTypesController/Details/5
         public async Task<ActionResult> Details(int id)
         {
-            if (! await _repo.IsExists(id))
+            if (! await _unitOfWork.LeaveTypeRepo.IsExists(x => x.Id==id)) //_repo.IsExists(id)
             {
                 return NotFound();
             }
-            var leavetype = await _repo.FindById(id);
+            var leavetype = await _unitOfWork.LeaveTypeRepo.Find(x => x.Id == id); // _repo.FindById(id)
             var model = _mapper.Map<LeaveTypeVM>(leavetype);
             return View(model);
         }
@@ -64,7 +67,8 @@ namespace leave_management.Controllers
                 }
                 var leaveType = _mapper.Map<LeaveType>(model);
                 leaveType.DateCreated = DateTime.Now;
-                var success =  await _repo.Create(leaveType);
+                 await _unitOfWork.LeaveTypeRepo.Create(leaveType); //_repo.Create(leaveType)
+                var success = await _unitOfWork.Save();
                 if (!success)
                 {
                     ModelState.AddModelError("", "Error on database");
@@ -82,11 +86,11 @@ namespace leave_management.Controllers
         // GET: LeaveTypesController/Edit/5
         public async Task<ActionResult> Edit(int id)
         {
-            if (! await _repo.IsExists(id))
+            if (! await _unitOfWork.LeaveTypeRepo.IsExists(x => x.Id == id)) //_repo.IsExists(id)
             {
                 return NotFound();
             }
-            var leaveType = await _repo.FindById(id);
+            var leaveType = await _unitOfWork.LeaveTypeRepo.Find(x => x.Id == id); //_repo.FindById(id)
             var model = _mapper.Map<LeaveTypeVM>(leaveType);
             return View(model);
         }
@@ -103,7 +107,8 @@ namespace leave_management.Controllers
                     return View(model);
                 }
                 var leaveType = _mapper.Map<LeaveType>(model);
-                var success = await _repo.Update(leaveType);
+                await _unitOfWork.LeaveTypeRepo.Update(leaveType); //_repo.Update(leaveType)
+                var success = await _unitOfWork.Save();
                 if (!success)
                 {
                     ModelState.AddModelError("", "Error on database");
@@ -123,8 +128,9 @@ namespace leave_management.Controllers
         {
             try
             {
-                var leaveType = await _repo.FindById(id);
-                var success = await _repo.Delete(leaveType);
+                var leaveType = await _unitOfWork.LeaveTypeRepo.Find(expression: x => x.Id == id); //_repo.FindById(id);
+                 await _unitOfWork.LeaveTypeRepo.Delete(leaveType); //_repo.Delete(leaveType);
+                var success = await _unitOfWork.Save();
                 if (leaveType == null)
                 {
                     return NotFound();
@@ -139,7 +145,7 @@ namespace leave_management.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", "Error on the creation:" + ex.Message);
+                ModelState.AddModelError("", "Error on the elimination:" + ex.Message);
                 return BadRequest();
             }
 
@@ -159,9 +165,10 @@ namespace leave_management.Controllers
         {
             try
             {
-                var leaveType = await _repo.FindById(id);
-                var success = await _repo.Delete(leaveType);
-                if(leaveType==null)
+                var leaveType = await _unitOfWork.LeaveTypeRepo.Find(x => x.Id == id); //_repo.FindById(id)
+                 await _unitOfWork.LeaveTypeRepo.Delete(leaveType); //_repo.Delete(leaveType);
+                var success = await _unitOfWork.Save(); 
+                if (leaveType==null)
                 {
                     return NotFound();
                 }

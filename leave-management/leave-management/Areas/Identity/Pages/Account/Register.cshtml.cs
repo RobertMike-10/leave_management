@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using leave_management.Services;
 
 namespace leave_management.Areas.Identity.Pages.Account
 {
@@ -23,13 +24,13 @@ namespace leave_management.Areas.Identity.Pages.Account
         private readonly SignInManager<Employee> _signInManager;
         private readonly UserManager<Employee> _userManager;
         private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
+        private readonly Services.IEmailSender _emailSender;
 
         public RegisterModel(
             UserManager<Employee> userManager,
             SignInManager<Employee> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            Services.IEmailSender emailSender)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -94,20 +95,20 @@ namespace leave_management.Areas.Identity.Pages.Account
                 {
 
                     _userManager.AddToRoleAsync(user, "Employee").Wait();
-
-                    
+                                        
                     _logger.LogInformation("User created a new account with password.");
 
-                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    //code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    //var callbackUrl = Url.Page(
-                    //    "/Account/ConfirmEmail",
-                    //    pageHandler: null,
-                    //    values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
-                    //    protocol: Request.Scheme);
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
-                    //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                    //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    var callbackUrl = Url.Page(
+                        "/Account/ConfirmEmail",
+                        pageHandler: null,
+                        values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
+                        protocol: Request.Scheme);
+
+                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email" + Input.Firstname+ " " + Input.Lastname,
+                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

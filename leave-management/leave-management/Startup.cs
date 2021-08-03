@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using leave_management.Contracts;
 using leave_management.Repository;
 using leave_management.Mappers;
+using leave_management.Services;
 
 namespace leave_management
 {
@@ -38,11 +39,16 @@ namespace leave_management
             services.AddScoped<ILeaveTypeRepository, LeaveTypeRepository>();
             services.AddScoped<ILeaveHistoryRepository, LeaveHistoryRepository>();
             services.AddScoped<ILeaveAllocationRepository, LeaveAllocationRepository>();
+            //mapper
             services.AddAutoMapper(typeof(MapperVMToDB));
+            //identity
             services.AddDefaultIdentity<Employee>()
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
+
+            services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
+            services.AddSingleton<IEmailSender, EmailSender>();
             services.AddControllersWithViews();
             services.AddRazorPages().AddRazorRuntimeCompilation();
         }

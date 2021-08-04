@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "mssql2": {
+      "type": "mssql.onprem",
+      "connectionId": "ConnectionStrings:leave_managementContextConnection",
+      "secretStore": "AzureAppSettings"
+    },
+    "mssql1": {
+      "type": "mssql.onprem",
+      "connectionId": "ConnectionStrings:DefaultConnection",
+      "secretStore": "AzureAppSettings"
+    }
+  }
+}

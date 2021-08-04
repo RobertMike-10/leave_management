@@ -47,6 +47,7 @@ namespace leave_management
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
 
+            services.BuildServiceProvider().GetService<ApplicationDbContext>().Database.Migrate();
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
             services.AddSingleton<IEmailSender, EmailSender>();
             services.AddControllersWithViews();

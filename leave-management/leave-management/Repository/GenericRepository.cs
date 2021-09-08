@@ -36,11 +36,7 @@ namespace leave_management.Repository
         {
             IQueryable<T> query = _data;
             if (includes !=null )
-            {
-                //foreach(var table in includes)
-                //{
-                //    query = query.Include(table);
-                //}
+            {              
                 query = includes(query);
             }
             return await query.FirstOrDefaultAsync(expression);
@@ -56,11 +52,7 @@ namespace leave_management.Repository
                 query = query.Where(expression);
             }
             if (includes != null )
-            {
-                //foreach (var table in includes)
-                //{
-                //    query = query.Include(table);
-                //}
+            {            
                 query = includes(query);
             }
 
